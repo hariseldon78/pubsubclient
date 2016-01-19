@@ -316,18 +316,20 @@ boolean PubSubClient::loop() {
                         if ((buffer[0]&0x06) == MQTTQOS1) {
                             msgId = (buffer[llen+3+tl]<<8)+buffer[llen+3+tl+1];
                             payload = buffer+llen+3+tl+2;
-                            callback(topic,payload,len-llen-3-tl-2);
+                            if (callback(topic,payload,len-llen-3-tl-2,Qos1))
+                            {
 
-                            buffer[0] = MQTTPUBACK;
-                            buffer[1] = 2;
-                            buffer[2] = (msgId >> 8);
-                            buffer[3] = (msgId & 0xFF);
-                            _client->write(buffer,4);
-                            lastOutActivity = t;
+	                            buffer[0] = MQTTPUBACK;
+	                            buffer[1] = 2;
+	                            buffer[2] = (msgId >> 8);
+	                            buffer[3] = (msgId & 0xFF);
+	                            _client->write(buffer,4);
+	                            lastOutActivity = t;
+	                        }
 
                         } else {
                             payload = buffer+llen+3+tl;
-                            callback(topic,payload,len-llen-3-tl);
+                            callback(topic,payload,len-llen-3-tl,Qos0);
                         }
                     }
                 } else if (type == MQTTPINGREQ) {
@@ -463,10 +465,6 @@ boolean PubSubClient::write(uint8_t header, uint8_t* buf, uint16_t length) {
     lastOutActivity = millis();
     return (rc == 1+llen+length);
 #endif
-}
-
-boolean PubSubClient::subscribe(const char* topic) {
-    return subscribe(topic, 0);
 }
 
 boolean PubSubClient::subscribe(const char* topic, uint8_t qos) {

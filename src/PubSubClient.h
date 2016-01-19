@@ -65,7 +65,14 @@
 #define MQTTQOS1        (1 << 1)
 #define MQTTQOS2        (2 << 1)
 
-#define MQTT_CALLBACK_SIGNATURE void (*callback)(char*,uint8_t*,unsigned int)
+enum Qos { 
+	Qos0=0,
+	Qos1
+ };
+
+//                                               topic,payload, length,      qos
+// return true to send ack
+#define MQTT_CALLBACK_SIGNATURE bool (*callback)(char*,uint8_t*,unsigned int,Qos)
 
 class PubSubClient {
 private:
@@ -119,7 +126,6 @@ public:
    boolean publish(const char* topic, const uint8_t * payload, unsigned int plength);
    boolean publish(const char* topic, const uint8_t * payload, unsigned int plength, boolean retained);
    boolean publish_P(const char* topic, const uint8_t * payload, unsigned int plength, boolean retained);
-   boolean subscribe(const char* topic);
    boolean subscribe(const char* topic, uint8_t qos);
    boolean unsubscribe(const char* topic);
    boolean loop();
