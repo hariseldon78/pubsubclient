@@ -68,7 +68,7 @@
 enum Qos { 
 	Qos0=0,
 	Qos1
- };
+};
 
 //                                               topic,payload, length,      qos
 // return true to send ack
